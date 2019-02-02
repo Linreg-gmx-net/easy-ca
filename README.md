@@ -12,6 +12,10 @@ A suite of bash scripts for automating very basic OpenSSL Certificate Authority 
 
 ## Usage
 
+### Edit defauilt.conf File
+
+Put your meta information for your ca and certificates in this file.
+
 ### Create a new Root CA
 
 The **create-root-ca** script will initialize a new Root CA directory structure. This script can be run directly from the source repo or from within an existing Easy CA installation. The CA is self-contained within the specified directory tree. It is portable and can be stored on removable media for security.
