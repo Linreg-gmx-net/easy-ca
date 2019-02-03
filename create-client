@@ -1,21 +1,33 @@
 #!/bin/bash
-# Derek Moore <derek.moore@gmail.com>
+# Tom <linreg@gmx.net>
 
 usage() {
-    echo "Usage: $0 -c CLIENT_NAME"
+    echo "Usage: $0 -c CLIENT_NAME [-t DAYS]"
     echo "Issues a client certificate for CLIENT_NAME"
     echo
     echo "Options:"
     echo "    -c CLIENT_NAME  Client name (commonName) for the new cert"
+    echo "    -t How many days to live (optional)"
     echo
     exit 2
 }
 
+# Var init
 CLIENT_NAME=
+DAYS=
 
-while getopts c: FLAG; do
+BIN_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source ${BIN_DIR}/functions
+source ${BIN_DIR}/defaults.conf
+
+DAYS=$CA_DEFAULT_DAYS
+
+while getopts c:t: FLAG; do
     case $FLAG in
-        c) CLIENT_NAME=${OPTARG} ;;
+        c) CLIENT_NAME=${OPTARG} 
+           ;;
+        t) DAYS="${OPTARG}"
+           ;;        
         *) usage ;;
     esac
 done
@@ -24,15 +36,12 @@ if [ "${CLIENT_NAME}" == "" ]; then
     usage
 fi
 
-BIN_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-source ${BIN_DIR}/functions
-source ${BIN_DIR}/defaults.conf
-
 SAFE_NAME=`echo $CLIENT_NAME | sed 's/\*/star/g'`
 SAFE_NAME=`echo $SAFE_NAME | sed 's/[^A-Za-z0-9-]/-/g'`
 
 echo
 echo "Creating new client certificate for '${CLIENT_NAME}'"
+echo "DAYS=$DAYS"
 echo
 
 pushd ${BIN_DIR}/.. > /dev/null
@@ -61,12 +70,12 @@ chmod 0400 private/${SAFE_NAME}.client.key
 
 # Create the client certificate
 openssl ca -batch -notext \
-           -config conf/ca.conf \
            -in csr/${SAFE_NAME}.client.csr \
            -out certs/${SAFE_NAME}.client.crt \
-           -days 730 \
+           -days $DAYS \
            -extensions client_ext \
-           -passin env:CA_PASS
+           -passin env:CA_PASS \
+           -config conf/ca.conf
 
 popd > /dev/null
 

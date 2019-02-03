@@ -1,5 +1,5 @@
 #!/bin/bash
-# Derek Moore <derek.moore@gmail.com>
+# Tom <linreg@gmx.net>
 
 usage() {
     echo "Usage: $0 -c CERT"

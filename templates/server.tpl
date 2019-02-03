@@ -2,7 +2,7 @@
 
 [ req ]
 default_bits            = 8192                  # RSA key size
-default_days            = 7300                   # How long to certify for
+default_days            = {{CA_DEFAULT_DAYS}}   # How long to certify for
 encrypt_key             = no                    # Protect private key
 default_md              = sha256                # MD to use
 utf8                    = yes                   # Input is UTF-8
