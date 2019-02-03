@@ -155,7 +155,26 @@ generate_conf() {
         CA_CERT_CN=${CERT_CN}
     fi
 
+    echo
+
+    CA_CERT_CN="${CA_CERT_O} Certificate default days to live"
+    echo -n "Common days to live for CA certificate [${CA_DEFAULT_DAYS}]: "
+    read DEFAULT_DAYS
+    if [ -n "${DEFAULT_DAYS}" ]; then
+        CA_DEFAULT_DAYS=${DEFAULT_DAYS}
+    fi
+    
+    echo
+
+    CA_CERT_CN="${CA_CERT_O} Certificate default keylength"
+    echo -n "Common keylength for CA certificate [${CA_DEFAULT_BITS}]: "
+    read DEFAULT_BITS
+    if [ -n "${DEFAULT_BITS}" ]; then
+        CA_DEFAULT_BITS=${DEFAULT_BITS}
+    fi
+    
     cat > ${DEST} << EOF
+    
 CA_DOMAIN="${CA_DOMAIN}"
 CA_NAME="${CA_NAME}"
 
@@ -165,5 +184,9 @@ CA_CERT_L="${CA_CERT_L}"
 CA_CERT_O="${CA_CERT_O}"
 CA_CERT_OU="${CA_CERT_OU}"
 CA_CERT_CN="${CA_CERT_CN}"
+
+CA_DEFAULT_DAYS="${CA_DEFAULT_DAYS}"
+CA_DEFAULT_BITS="${CA_DEFAULT_BITS}"
+
 EOF
 }

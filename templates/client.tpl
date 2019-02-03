@@ -1,5 +1,5 @@
 [ req ]
-default_bits            = 8192                  # RSA key size
+default_bits            = {{CA_DEFAULT_BITS}}                  # RSA key size
 default_days            = {{CA_DEFAULT_DAYS}}   # How long to certify for
 encrypt_key             = no                    # Protect private key
 default_md              = sha256                # MD to use

@@ -10,7 +10,7 @@ name_opt                = multiline,-esc_msb,utf8 # Display UTF-8 characters
 # Configuration for `openssl req ...`
 
 [ req ]
-default_bits            = 8192                  # RSA key size
+default_bits            = {{CA_DEFAULT_BITS}}   # RSA key size
 default_days            = {{CA_DEFAULT_DAYS}}   # How long to certify for
 encrypt_key             = yes                   # Protect private key
 default_md              = sha256                # MD to use
