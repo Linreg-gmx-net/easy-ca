@@ -93,8 +93,8 @@ openssl ca -batch -notext \
            -out certs/${SAFE_NAME}.server.crt \
            -extensions server_ext \
            -passin env:CA_PASS \
-           -days $DAYS \           
-           -config conf/ca.conf
+           -config conf/ca.conf \
+           -days $DAYS
 
 popd > /dev/null
 

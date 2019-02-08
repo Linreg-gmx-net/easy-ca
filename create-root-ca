@@ -86,7 +86,7 @@ openssl ca -selfsign -batch -notext \
            -days $DAYS \
            -extensions root_ca_ext \
            -passin env:CA_PASS \
-           -config conf/ca.conf \           
+           -config conf/ca.conf
 
 # Create the root CRL
 openssl ca -gencrl -batch \
