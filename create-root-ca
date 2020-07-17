@@ -22,7 +22,7 @@ source ${BIN_DIR}/functions
 
 DAYS=$CA_DEFAULT_DAYS
 
-while getopts d: FLAG; do
+while getopts d:t FLAG; do
     case $FLAG in
         d) CA_DIR=${OPTARG}
            ;;
