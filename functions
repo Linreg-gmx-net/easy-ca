@@ -148,7 +148,7 @@ generate_conf() {
 
     echo
 
-    CA_CERT_CN="${CA_CERT_O} Certificate Authority"
+    CA_CERT_CN="$CA_NAME"
     echo -n "Common Name for CA certificate [${CA_CERT_CN}]: "
     read CERT_CN
     if [ -n "${CERT_CN}" ]; then
@@ -157,7 +157,6 @@ generate_conf() {
 
     echo
 
-    CA_CERT_CN="${CA_CERT_O} Certificate default days to live"
     echo -n "Common days to live for CA certificate [${CA_DEFAULT_DAYS}]: "
     read DEFAULT_DAYS
     if [ -n "${DEFAULT_DAYS}" ]; then
@@ -166,7 +165,6 @@ generate_conf() {
     
     echo
 
-    CA_CERT_CN="${CA_CERT_O} Certificate default keylength"
     echo -n "Common keylength for CA certificate [${CA_DEFAULT_BITS}]: "
     read DEFAULT_BITS
     if [ -n "${DEFAULT_BITS}" ]; then

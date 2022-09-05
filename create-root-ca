@@ -69,7 +69,7 @@ export SAN=""
 template "${BIN_DIR}/templates/root.tpl" "conf/ca.conf"
 
 # Create the root CA csr
-openssl genrsa -out ca/private/ca.key -passout env:CA_PASS 8192
+openssl genrsa -out ca/private/ca.key -passout env:CA_PASS $CA_DEFAULT_BITS
 chmod 0400 ca/private/ca.key
 
 # Create the root CA csr

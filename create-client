@@ -2,11 +2,12 @@
 # Tom <linreg@gmx.net>
 
 usage() {
-    echo "Usage: $0 -c CLIENT_NAME [-t DAYS]"
+    echo "Usage: $0 -c CLIENT_NAME [-e RSA|ELLIPTIC ] [-t DAYS]"
     echo "Issues a client certificate for CLIENT_NAME"
     echo
     echo "Options:"
     echo "    -c CLIENT_NAME  Client name (commonName) for the new cert"
+    echo "    -e Algorithm to Use w/o -e RSA or with -e Elliptic (optional)"
     echo "    -t How many days to live (optional)"
     echo
     exit 2
@@ -22,10 +23,16 @@ source ${BIN_DIR}/defaults.conf
 
 DAYS=$CA_DEFAULT_DAYS
 
-while getopts c:t: FLAG; do
+while getopts c:e:t: FLAG; do
     case $FLAG in
         c) CLIENT_NAME=${OPTARG} 
            ;;
+        e) if [ -z "${ALT_NAME}" ]; then
+               ALGORITHM="RSA"
+           else
+               ALGORITHM="ELLIPTIC"
+           fi
+     	   ;;
         t) DAYS="${OPTARG}"
            ;;        
         *) usage ;;
@@ -48,7 +55,10 @@ pushd ${BIN_DIR}/.. > /dev/null
 
 if [ -f conf/${SAFE_NAME}.client.conf ]; then
     echo "Configuration already exists for '${CLIENT_NAME}', exiting."
-    exit 1
+    #exit 1
+    mv -v "conf/${SAFE_NAME}.client.conf" "conf/${SAFE_NAME}.client.conf.old"
+    test -f "csr/${SAFE_NAME}.client.csr" && mv -v "csr/${SAFE_NAME}.client.csr"   "csr/${SAFE_NAME}.client.csr.old"
+	test -f "certs/${SAFE_NAME}.client.crt" && mv -v "certs/${SAFE_NAME}.client.crt" "certs/${SAFE_NAME}.client.crt.old"
 fi
 
 echo -n "Enter passphase for signing CA key: "
@@ -59,14 +69,27 @@ export CA_PASS=${PASS}
 # Generate the client cert openssl config
 export SAN=""
 export CA_USERNAME=${CLIENT_NAME}
-template "${BIN_DIR}/templates/client.tpl" "conf/${SAFE_NAME}.client.conf"
 
+if [ ALGORITHM = "RSA" ]; then
+	template "${BIN_DIR}/templates/client.tpl" "conf/${SAFE_NAME}.client.conf"
+else
+	template "${BIN_DIR}/templates/client-elliptic" "conf/${SAFE_NAME}.client.conf"
+fi
+
+if [ -f "private/${SAFE_NAME}.client.key" ]; then
+echo "Renew CSR with existing client key"
+openssl req -new -nodes \
+            -config conf/${SAFE_NAME}.client.conf \
+            -key private/${SAFE_NAME}.client.key \
+            -out csr/${SAFE_NAME}.client.csr
+else
 # Create the client key and csr
 openssl req -new -nodes \
             -config conf/${SAFE_NAME}.client.conf \
             -keyout private/${SAFE_NAME}.client.key \
             -out csr/${SAFE_NAME}.client.csr
 chmod 0400 private/${SAFE_NAME}.client.key
+fi
 
 # Create the client certificate
 openssl ca -batch -notext \
