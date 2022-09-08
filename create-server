@@ -19,6 +19,7 @@ usage() {
 SERVER_NAME=
 ALT_NAME=
 DAYS=
+export DATUM=`date +"%y-%m-%d_%H:%M"`
 
 BIN_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source ${BIN_DIR}/functions
@@ -47,7 +48,8 @@ while getopts s:a:i:e:t: FLAG; do
                ALT_NAME="${ALT_NAME}, IP:${OPTARG}"
            fi
            ;;
-        e) if [ -z "${ALT_NAME}" ]; then
+        e) ALGORITHM=${OPTARG}
+	        if [ -z "${ALGORITHM}" ]; then
                ALGORITHM="RSA"
            else
                ALGORITHM="ELLIPTIC"
@@ -78,14 +80,6 @@ echo
 
 pushd ${BIN_DIR}/.. > /dev/null
 
-if [ -f conf/${SAFE_NAME}.server.conf ]; then
-    echo "Configuration already exists for '${SERVER_NAME}', exiting."
-    #exit 1
-    mv -v "conf/${SAFE_NAME}.server.conf" "conf/${SAFE_NAME}.server.conf.old"
-    test -f "csr/${SAFE_NAME}.server.csr" && mv -v "csr/${SAFE_NAME}.server.csr"   "csr/${SAFE_NAME}.server.csr.old"
-	test -f "certs/${SAFE_NAME}.server.crt" && mv -v "certs/${SAFE_NAME}.server.crt" "certs/${SAFE_NAME}.server.crt.old"
-fi
-
 echo -n "Enter passphase for signing CA key: "
 read -s PASS
 echo
@@ -95,26 +89,47 @@ export CA_PASS=${PASS}
 export CA_HOSTNAME=${SERVER_NAME}
 export SAN=${ALT_NAME}
 
-if [ ALGORITHM = "RSA" ]; then
-	template "${BIN_DIR}/templates/server.tpl" "conf/${SAFE_NAME}.server.conf"
-else
-	template "${BIN_DIR}/templates/server-elliptic" "conf/${SAFE_NAME}.server.conf"
-fi
-
 if [ -f "private/${SAFE_NAME}.server.key" ]; then
-echo "Renew CSR with existing server key"
-openssl req -new -nodes \
+	echo "Renew CSR with existing server key"
+
+    #test -f "conf/${SAFE_NAME}.server.conf" && mv -v "conf/${SAFE_NAME}.server.conf" "conf/${SAFE_NAME}.server.conf.$DATUM"
+    test -f "csr/${SAFE_NAME}.server.csr" && mv -v "csr/${SAFE_NAME}.server.csr"   "csr/${SAFE_NAME}.server.csr.$DATUM"
+	test -f "certs/${SAFE_NAME}.server.crt" && mv -v "certs/${SAFE_NAME}.server.crt" "certs/${SAFE_NAME}.server.crt.$DATUM"
+
+	openssl req -new -nodes \
             -config conf/${SAFE_NAME}.server.conf \
             -key private/${SAFE_NAME}.server.key \
             -out csr/${SAFE_NAME}.server.csr
 else
-# Create the server key and csr
-openssl req -new -nodes \
-            -config conf/${SAFE_NAME}.server.conf \
-            -keyout private/${SAFE_NAME}.server.key \
-            -out csr/${SAFE_NAME}.server.csr
 
-chmod 0400 private/${SAFE_NAME}.server.key
+	if [ ALGORITHM = "RSA" ]; then
+		echo "Generate RSA Config"
+		template "${BIN_DIR}/templates/server.tpl" "conf/${SAFE_NAME}.server.conf"
+
+		# Create the server key and csr
+		openssl req -new -nodes \
+            -config "conf/${SAFE_NAME}.server.conf" \
+            -keyout "private/${SAFE_NAME}.server.key" \
+            -out "csr/${SAFE_NAME}.server.csr"
+	else
+		echo "Generate ELLIPTIC Config"
+		template "${BIN_DIR}/templates/server-elliptic.tpl" "conf/${SAFE_NAME}.server.conf"
+
+		# Create the server key
+		echo "Generate ELLIPTIC Key"
+	    openssl ecparam -name secp521r1 \
+	            -genkey \
+                -out "private/${SAFE_NAME}.server.key"
+
+        # Create the server csr
+        echo "Generate ELLIPTIC CSR"
+        openssl req -new -nodes \
+		        -key "private/${SAFE_NAME}.server.key" \
+                -config "conf/${SAFE_NAME}.server.conf" \
+                -out "csr/${SAFE_NAME}.server.csr"
+	fi
+
+	chmod 0400 private/${SAFE_NAME}.server.key
 fi
 
 # Create the server certificate
