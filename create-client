@@ -16,6 +16,7 @@ usage() {
 # Var init
 CLIENT_NAME=
 DAYS=
+ALGORITHM="RSA"
 export DATUM=`date +"%y-%m-%d_%H:%M"`
 
 BIN_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
