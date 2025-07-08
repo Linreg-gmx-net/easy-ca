@@ -111,7 +111,7 @@ $CA_DIR/crl/ca.crl
 
 
 
-## Caveats
+## Caveats/Default Values
 
 These scripts are very simple, and make some hard-coded assumptions about behavior and configuration:
 * Root and Intermediate CAs have a 3652-day lifetime
@@ -119,8 +119,8 @@ These scripts are very simple, and make some hard-coded assumptions about behavi
 * Root and Intermediate CA keys are always encrypted
 * Only one level of Intermediate CA is supported
 * Client and Server certificates have a 730-day lifetime
-* Client and Server certificates have 2048-bit RSA keys
+* Client and Server certificates have 4096-bit RSA keys
 * Client and Server keys are never encrypted
-* There is no wrapper for renewing certificates
+* There is a wrapper for renewing certificates
 
 
