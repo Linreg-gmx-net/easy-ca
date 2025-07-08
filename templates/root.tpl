@@ -84,7 +84,7 @@ crlDistributionPoints   = @crl_info
 
 # Extensions for signing certs issued by this signing CA
 [ server_ext ]
-keyUsage                = critical,digitalSignature,keyEncipherment
+#keyUsage                = critical,digitalSignature,keyEncipherment
 basicConstraints        = CA:false
 extendedKeyUsage        = serverAuth,clientAuth
 subjectKeyIdentifier    = hash
@@ -94,7 +94,7 @@ authorityInfoAccess     = @issuer_info
 crlDistributionPoints   = @crl_info
 
 [ client_ext ]
-keyUsage                = critical,digitalSignature
+#keyUsage                = critical,digitalSignature
 basicConstraints        = CA:false
 extendedKeyUsage        = clientAuth
 subjectKeyIdentifier    = hash
