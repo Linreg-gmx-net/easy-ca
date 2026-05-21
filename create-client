@@ -30,7 +30,7 @@ while getopts c:e:t: FLAG; do
         c) CLIENT_NAME=${OPTARG} 
            ;;
         e) ALGORITHM=${OPTARG}
-        if [ -z "${ALGORITHM}" ]; then
+        if [ -z "${ALGORITHM}" -o "${ALGORITHM}" = "RSA" ]; then
                ALGORITHM="RSA"
            else
                ALGORITHM="ELLIPTIC"
@@ -79,7 +79,7 @@ if [ -f "private/${SAFE_NAME}.client.key" ]; then
             -out csr/${SAFE_NAME}.client.csr
 else
 
-	if [ ALGORITHM = "RSA" ]; then
+	if [ "$ALGORITHM" = "RSA" ]; then
 		echo "Generate RSA Config"
 		template "${BIN_DIR}/templates/client.tpl" "conf/${SAFE_NAME}.client.conf"
 
